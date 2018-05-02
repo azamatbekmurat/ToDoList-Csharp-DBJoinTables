@@ -1,52 +1,78 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
-using ToDoList.Models;
 using System;
+using ToDoList.Models;
 
 namespace ToDoList.Tests
 {
 
-    [TestClass]
-    public class ItemTests : IDisposable
-    {
-        public void Dispose()
-        {
-            Item.DeleteAll();
-        }
-        public ItemTests()
-        {
-            DBConfiguration.ConnectionString = "server=localhost;user id=root;password=root;port=8889;database=todo_test;";
-        }
+   [TestClass]
+   public class ItemTests : IDisposable
+   {
+       public ItemTests()
+       {
+           DBConfiguration.ConnectionString = "server=localhost;user id=root;password=root;port=3306;database=todo_test;";
+       }
+       public void Dispose()
+       {
+         Item.DeleteAll();
+         Category.DeleteAll();
+       }
 
-        [TestMethod]
-        public void Save_AssignsIdToObject_Id()
-        {
-          //Arrange
-          Item testItem = new Item("Mow the lawn");
+       [TestMethod]
+       public void Equals_OverrideTrueForSameDescription_Item()
+       {
+         //Arrange, Act
+         Item firstItem = new Item("Mow the lawn", 1);
+         Item secondItem = new Item("Mow the lawn", 1);
 
-          //Act
-          testItem.Save();
-          Item savedItem = Item.GetAll()[0];
+         //Assert
+         Assert.AreEqual(firstItem, secondItem);
+       }
 
-          int result = savedItem.GetId();
-          int testId = testItem.GetId();
+       [TestMethod]
+       public void Save_SavesItemToDatabase_ItemList()
+       {
+         //Arrange
+         Item testItem = new Item("Mow the lawn", 1);
+         testItem.Save();
 
-          //Assert
-          Assert.AreEqual(testId, result);
-        }
+         //Act
+         List<Item> result = Item.GetAll();
+         List<Item> testList = new List<Item>{testItem};
 
-        [TestMethod]
-        public void Find_FindsItemInDatabase_Item()
-        {
-          //Arrange
-          Item testItem = new Item("Mow the lawn");
-          testItem.Save();
+         //Assert
+         CollectionAssert.AreEqual(testList, result);
+       }
+      [TestMethod]
+       public void Save_DatabaseAssignsIdToObject_Id()
+       {
+         //Arrange
+         Item testItem = new Item("Mow the lawn", 1);
+         testItem.Save();
 
-          //Act
-          Item foundItem = Item.Find(testItem.GetId());
+         //Act
+         Item savedItem = Item.GetAll()[0];
 
-          //Assert
-          Assert.AreEqual(testItem, foundItem);
-        }
-    }
+         int result = savedItem.GetId();
+         int testId = testItem.GetId();
+
+         //Assert
+         Assert.AreEqual(testId, result);
+       }
+
+       [TestMethod]
+       public void Find_FindsItemInDatabase_Item()
+       {
+         //Arrange
+         Item testItem = new Item("Mow the lawn", 1);
+         testItem.Save();
+
+         //Act
+         Item foundItem = Item.Find(testItem.GetId());
+
+         //Assert
+         Assert.AreEqual(testItem, foundItem);
+       }
+   }
 }
