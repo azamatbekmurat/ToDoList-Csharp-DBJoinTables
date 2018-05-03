@@ -114,7 +114,7 @@ namespace ToDoList.Models
 
             var rdr = cmd.ExecuteReader() as MySqlDataReader;
             int itemId = 0;
-            string itemName = "";
+            string itemDescription = "";
             int itemCategoryId = 0;
 
             while(rdr.Read())
